@@ -96,10 +96,9 @@ int www(char a[],queue *q1,queue *q2)
         i++;
     } 
     if(a[i]!='.'){return 0;}
-
-    if(count(*q1)!=count(*q2)){return 0;}
-
-    return 1;
+    
+ if(isempty(*q1)&&isempty(*q2)){return 1;}
+    else{return 0;}
 
 }
 
