@@ -124,6 +124,7 @@ int wwwr(char a[],queue *q,stack *s)
         if(x!=a[i]){return 0;}
         i++;
     }
+    if(a[i]!='.'){return 0;}
 
     i=0;
     while(!sisempty(*s))
@@ -133,9 +134,8 @@ int wwwr(char a[],queue *q,stack *s)
         i++;
     }
 
-    if(s->top!=count(*q)){return 0;}
-
-    return 1;
+     if(qisempty(*q)&&sisempty(*s)){return 1;}
+    else {return 0;}
 }
 
 
