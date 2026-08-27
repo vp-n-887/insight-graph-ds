@@ -1,0 +1,105 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define M 4
+
+typedef struct Node {
+    int key[M - 1];
+    struct Node *child[M];
+    int n;
+} Node;
+
+Node *createNode(int key)
+{
+    Node *newNode = (Node *)malloc(sizeof(Node));
+
+    newNode->key[0] = key;
+    newNode->n = 1;
+
+    for (int i = 0; i < M; i++)
+        newNode->child[i] = NULL;
+
+    return newNode;
+}
+
+void insert(Node *root, int key)
+{
+    int i;
+
+    /* Find the position for the key */
+    for (i = 0; i < root->n && key > root->key[i]; i++);
+
+    /* Duplicate */
+    if (i < root->n && key == root->key[i])
+        return;
+
+    /* Leaf node */
+    if (root->child[i] == NULL) {
+
+        if (root->n < M - 1) {
+
+            /* Shift keys to the right */
+            for (int j = root->n; j > i; j--)
+                root->key[j] = root->key[j - 1];
+
+            root->key[i] = key;
+            root->n++;
+        }
+        else {
+            /*
+             * Node is full.
+             * Create a new child.
+             */
+            Node *newNode = createNode(key);
+
+            if (key < root->key[0]) {
+                newNode->child[0] = root->child[0];
+                root->child[0] = newNode;
+            }
+            else if (key > root->key[root->n - 1]) {
+                newNode->child[0] = root->child[root->n];
+                root->child[root->n] = newNode;
+            }
+            else {
+                newNode->child[0] = root->child[i];
+                root->child[i] = newNode;
+            }
+        }
+    }
+    else {
+        insert(root->child[i], key);
+    }
+}
+
+void inorder(Node *root)
+{
+    if (root == NULL)
+        return;
+
+    for (int i = 0; i < root->n; i++) {
+        inorder(root->child[i]);
+        printf("%d ", root->key[i]);
+    }
+
+    inorder(root->child[root->n]);
+}
+
+int main()
+{
+    Node *root = createNode(20);
+
+    insert(root, 10);
+    insert(root, 30);
+    insert(root, 40);
+    insert(root, 5);
+    insert(root, 15);
+    insert(root, 25);
+    insert(root, 35);
+    insert(root, 50);
+
+    printf("Inorder traversal: ");
+    inorder(root);
+
+    return 0;
+}
+
