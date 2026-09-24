@@ -65,10 +65,10 @@ NODE* insert(NODE* l,int data)
 
     int bal=getbalance(l);
 
-    if(bal>1&&data<data<l->left->data){return rightrotate(l);}
-    if(bal>1&&data>data<l->left->data){l->left=leftrotate(l->left);return rightrotate(l);}
-    if(bal<-1&&data>data<l->right->data){return leftrotate(l);}
-    if(bal<-1&&data<data<l->right->data){l->right=rightrotate(l->right);return leftrotate(l);}
+    if(bal>1&&data<l->left->data){return rightrotate(l);}
+    if(bal>1&&data>l->left->data){l->left=leftrotate(l->left);return rightrotate(l);}
+    if(bal<-1&&data>l->right->data){return leftrotate(l);}
+    if(bal<-1&&data<l->right->data){l->right=rightrotate(l->right);return leftrotate(l);}
 
    return l;
 }
@@ -81,12 +81,14 @@ void display_level(NODE* l)
     NODE* arr[100];
     int front=0;
     int rear=0;
+    int level=0;
 
     arr[rear++]=l;
 
     while(front<rear)
     {
         int count=rear-front;
+          printf("Level %d : ", level);
 
         while(count>0)
         {
@@ -99,6 +101,7 @@ void display_level(NODE* l)
             count--;
         }
         printf("\n");
+        level++;
     }
 }
 
