@@ -42,7 +42,7 @@ void enque(que *q,bt* val)
 
 bt* deque(que *q)
 {
-    if(isempty(*q)){return;}
+    if(isempty(*q)){return NULL;}
 
     q->front=q->front+1;
     bt* temp=q->val[q->front];
@@ -107,14 +107,25 @@ void inorder(bt *t)
 
 int minheap(bt* t)
 {
-    bt* temp=t;
-    if(!temp){return 1;}
-    if(temp->left||temp->right){
-    if(temp->left->data<temp->data||temp->right->data<temp->data){return 0;}}
+    if(t == NULL)
+        return 1;
 
-    return minheap(temp->left)&&minheap(temp->right);
+    if(t->left != NULL)
+    {
+        if(t->left->data < t->data)
+            return 0;
+    }
 
+    if(t->right != NULL)
+    {
+        if(t->right->data < t->data)
+            return 0;
+    }
+
+    return minheap(t->left) && minheap(t->right);
 }
+
+
 
 int main()
 {
