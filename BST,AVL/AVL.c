@@ -20,7 +20,10 @@ NODE* makenode(int data)
 int height(NODE* l)
 {
     if(!l){return 0;}
-    return 1+height(l->next);
+    int le=height(l->left);
+    int r=height(l->right);
+
+    return 1+((le>r)?le:r);
 }
 
 
