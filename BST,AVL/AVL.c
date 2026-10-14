@@ -11,7 +11,6 @@ NODE* makenode(int data)
 {
     NODE* l=(NODE*)malloc(sizeof(node));
     l->data=data;
-    l->height=1;
     l->left=NULL;
     l->right=NULL;
 
@@ -21,7 +20,7 @@ NODE* makenode(int data)
 int height(NODE* l)
 {
     if(!l){return 0;}
-    return l->height;
+    return 1+height(l->next);
 }
 
 
