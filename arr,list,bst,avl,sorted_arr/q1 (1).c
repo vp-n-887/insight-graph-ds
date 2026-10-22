@@ -189,11 +189,27 @@ avl* insert_avl(avl* l,int data)
 
     int bal=getbalance(l);
 
-    if(bal>1&&data<data<l->left->data){return rightrotate(l);}
-    if(bal>1&&data>data<l->left->data){l->left=leftrotate(l->left);return rightrotate(l);}
-    if(bal<-1&&data>data<l->right->data){return leftrotate(l);}
-    if(bal<-1&&data<data<l->right->data){l->right=rightrotate(l->right);return leftrotate(l);}
+    // LL case
+if (bal > 1 && data < l->left->data)
+    return rightrotate(l);
 
+// LR case
+if (bal > 1 && data > l->left->data)
+{
+    l->left = leftrotate(l->left);
+    return rightrotate(l);
+}
+
+// RR case
+if (bal < -1 && data > l->right->data)
+    return leftrotate(l);
+
+// RL case
+if (bal < -1 && data < l->right->data)
+{
+    l->right = rightrotate(l->right);
+    return leftrotate(l);
+}
    return l;
 }
 
