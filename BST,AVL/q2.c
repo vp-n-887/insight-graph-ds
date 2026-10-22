@@ -54,6 +54,41 @@ void inorder(bt* t,int *c,int k)
     inorder(t->right,c,k);
 }
 
+int preIndex = 0;
+
+int search(int in[], int start, int end, int key)
+{
+    for(int i = start; i <= end; i++)
+    {
+        if(in[i] == key)
+            return i;
+    }
+    return -1;
+}
+
+bst* buildTree(int in[], int pre[],
+               int start, int end, int n)
+{
+    if(start > end || preIndex >= n)
+        return NULL;
+
+    int data = pre[preIndex++];
+    bst* t = makenode(data);
+
+    if(start == end)
+        return t;
+
+    int pos = search(in, start, end, data);
+
+    if(pos == -1)
+        return NULL;
+
+    t->left = buildTree(in, pre, start, pos - 1, n);
+    t->right = buildTree(in, pre, pos + 1, end, n);
+
+    return t;
+}
+
 int main()
 {
 
