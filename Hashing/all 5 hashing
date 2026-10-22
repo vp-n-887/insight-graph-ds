@@ -1,0 +1,380 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define SIZE 7
+#define EMPTY -1
+
+/* ========== SEPARATE CHAINING ========== */
+
+typedef struct Node {
+    int data;
+    struct Node *next;
+} Node;
+
+Node *chain[SIZE];
+
+void initChain() {
+    int i;
+    for (i = 0; i < SIZE; i++)
+        chain[i] = NULL;
+}
+
+void insertChain(int key) {
+    int index = key % SIZE;
+    Node *temp = chain[index];
+
+    while (temp != NULL) {
+        if (temp->data == key) {
+            printf("Duplicate key!\n");
+            return;
+        }
+        temp = temp->next;
+    }
+
+    Node *newNode = malloc(sizeof(Node));
+
+    if (newNode == NULL) {
+        printf("Memory allocation failed!\n");
+        return;
+    }
+
+    newNode->data = key;
+    newNode->next = chain[index];
+    chain[index] = newNode;
+}
+
+void displayChain() {
+    int i;
+    Node *temp;
+
+    for (i = 0; i < SIZE; i++) {
+        printf("%d: ", i);
+        temp = chain[i];
+
+        while (temp != NULL) {
+            printf("%d -> ", temp->data);
+            temp = temp->next;
+        }
+
+        printf("NULL\n");
+    }
+}
+
+void freeChain() {
+    int i;
+
+    for (i = 0; i < SIZE; i++) {
+        Node *temp = chain[i];
+
+        while (temp != NULL) {
+            Node *next = temp->next;
+            free(temp);
+            temp = next;
+        }
+
+        chain[i] = NULL;
+    }
+}
+
+/* ========== COMMON FUNCTIONS ========== */
+
+int hash(int key, int size) {
+    int result = key % size;
+    return result < 0 ? result + size : result;
+}
+
+void initTable(int table[], int size) {
+    int i;
+
+    for (i = 0; i < size; i++)
+        table[i] = EMPTY;
+}
+
+void display(int table[], int size) {
+    int i;
+
+    for (i = 0; i < size; i++) {
+        if (table[i] == EMPTY)
+            printf("%d: EMPTY\n", i);
+        else
+            printf("%d: %d\n", i, table[i]);
+    }
+}
+
+/* ========== LINEAR PROBING ========== */
+
+void insertLinear(int table[], int key) {
+    int index = hash(key, SIZE);
+    int i, pos;
+
+    for (i = 0; i < SIZE; i++) {
+        pos = (index + i) % SIZE;
+
+        if (table[pos] == key) {
+            printf("Duplicate key!\n");
+            return;
+        }
+
+        if (table[pos] == EMPTY) {
+            table[pos] = key;
+            return;
+        }
+    }
+
+    printf("Hash table full!\n");
+}
+
+/* ========== QUADRATIC PROBING ========== */
+
+void insertQuadratic(int table[], int key) {
+    int index = hash(key, SIZE);
+    int i, pos;
+
+    for (i = 0; i < SIZE; i++) {
+        pos = (index + i * i) % SIZE;
+
+        if (table[pos] == key) {
+            printf("Duplicate key!\n");
+            return;
+        }
+
+        if (table[pos] == EMPTY) {
+            table[pos] = key;
+            return;
+        }
+    }
+
+    printf("No available slot found!\n");
+}
+
+/* ========== DOUBLE HASHING ========== */
+
+int hash2(int key) {
+    int r = key % 5;
+
+    if (r < 0)
+        r += 5;
+
+    return 5 - r;
+}
+
+void insertDouble(int table[], int key) {
+    int index = hash(key, SIZE);
+    int step = hash2(key);
+    int i, pos;
+
+    for (i = 0; i < SIZE; i++) {
+        pos = (index + i * step) % SIZE;
+
+        if (table[pos] == key) {
+            printf("Duplicate key!\n");
+            return;
+        }
+
+        if (table[pos] == EMPTY) {
+            table[pos] = key;
+            return;
+        }
+    }
+
+    printf("Hash table full!\n");
+}
+
+/* ========== REHASHING ========== */
+
+int isPrime(int n) {
+    int i;
+
+    if (n < 2)
+        return 0;
+
+    for (i = 2; i * i <= n; i++) {
+        if (n % i == 0)
+            return 0;
+    }
+
+    return 1;
+}
+
+int nextPrime(int n) {
+    while (!isPrime(n))
+        n++;
+
+    return n;
+}
+
+void rehash(int **table, int *size) {
+    int oldSize = *size;
+    int newSize = nextPrime(oldSize * 2 + 1);
+    int *newTable = malloc(newSize * sizeof(int));
+    int i, j, pos;
+
+    if (newTable == NULL) {
+        printf("Memory allocation failed!\n");
+        return;
+    }
+
+    for (i = 0; i < newSize; i++)
+        newTable[i] = EMPTY;
+
+    for (i = 0; i < oldSize; i++) {
+        if ((*table)[i] != EMPTY) {
+            int key = (*table)[i];
+            int index = hash(key, newSize);
+
+            for (j = 0; j < newSize; j++) {
+                pos = (index + j) % newSize;
+
+                if (newTable[pos] == EMPTY) {
+                    newTable[pos] = key;
+                    break;
+                }
+            }
+        }
+    }
+
+    free(*table);
+    *table = newTable;
+    *size = newSize;
+
+    printf("Rehashing completed. New size = %d\n", newSize);
+}
+
+void insertRehash(int **table, int *size,
+                  int *count, int key) {
+    int i, pos;
+
+    for (i = 0; i < *size; i++) {
+        pos = (hash(key, *size) + i) % *size;
+
+        if ((*table)[pos] == key) {
+            printf("Duplicate key!\n");
+            return;
+        }
+    }
+
+    if ((double)(*count + 1) / *size > 0.70) {
+        rehash(table, size);
+    }
+
+    for (i = 0; i < *size; i++) {
+        pos = (hash(key, *size) + i) % *size;
+
+        if ((*table)[pos] == EMPTY) {
+            (*table)[pos] = key;
+            (*count)++;
+            return;
+        }
+    }
+
+    printf("Insertion failed!\n");
+}
+
+void runRehash() {
+    int size = SIZE;
+    int count = 0;
+    int *table = malloc(size * sizeof(int));
+    int n, key, i;
+
+    if (table == NULL) {
+        printf("Memory allocation failed!\n");
+        return;
+    }
+
+    initTable(table, size);
+
+    printf("Enter number of keys: ");
+    scanf("%d", &n);
+
+    if (n < 0) {
+        printf("Invalid number!\n");
+        free(table);
+        return;
+    }
+
+    printf("Enter keys: ");
+
+    for (i = 0; i < n; i++) {
+        scanf("%d", &key);
+        insertRehash(&table, &size, &count, key);
+    }
+
+    display(table, size);
+    free(table);
+}
+
+/* ========== MENU ========== */
+
+int main() {
+    int choice, n, key, i;
+    int table[SIZE];
+
+    do {
+        printf("\n===== HASHING METHODS =====\n");
+        printf("1. Separate Chaining\n");
+        printf("2. Linear Probing\n");
+        printf("3. Quadratic Probing\n");
+        printf("4. Rehashing\n");
+        printf("5. Double Hashing\n");
+        printf("0. Exit\n");
+        printf("Enter choice: ");
+        scanf("%d", &choice);
+
+        if (choice == 1) {
+            initChain();
+
+            printf("Enter number of keys: ");
+            scanf("%d", &n);
+
+            for (i = 0; i < n; i++) {
+                scanf("%d", &key);
+                insertChain(key);
+            }
+
+            displayChain();
+            freeChain();
+        }
+
+        else if (choice >= 2 && choice <= 3 ||
+                 choice == 5) {
+            initTable(table, SIZE);
+
+            printf("Enter number of keys (0-%d): ",
+                   SIZE);
+            scanf("%d", &n);
+
+            if (n < 0) {
+                printf("Invalid number!\n");
+                continue;
+            }
+
+            for (i = 0; i < n; i++) {
+                scanf("%d", &key);
+
+                if (choice == 2)
+                    insertLinear(table, key);
+                else if (choice == 3)
+                    insertQuadratic(table, key);
+                else
+                    insertDouble(table, key);
+            }
+
+            display(table, SIZE);
+        }
+
+        else if (choice == 4) {
+            runRehash();
+        }
+
+        else if (choice == 0) {
+            printf("Exiting...\n");
+        }
+
+        else {
+            printf("Invalid choice!\n");
+        }
+
+    } while (choice != 0);
+
+    return 0;
+}
