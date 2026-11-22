@@ -1,3 +1,8 @@
+//insert-O(1)
+//search-O(1+a) to O(n)
+//a
+//1+a/2
+
 #include<stdio.h>
 #include<malloc.h>
 #include<string.h>
