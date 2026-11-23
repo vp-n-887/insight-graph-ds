@@ -54,27 +54,25 @@ void print(stack s)
 
 int wwr(stack *s,char a[])
 {
-    int i=0;
-    int period=-1;
-    char x;
-
-    while(a[i]!='0')
-    {
-        if(a[i]=='.'){i++;period=i;break;}
-        push(s,a[i]);
-        i++;
-    }
-
-    if(period==-1){return 0;}
-
-    while(!isempty(*s))
-    {
-        pop(s,&x);
-        if(x!=a[i]){return 0;}
-        i++;
-    }
-    
-    return 1;
+   int i=0;
+   char x;
+   while(a[i]!='\0')
+   {
+       if(a[i]=='.'){break;}
+       else{push(s,a[i]);}
+       i++;
+   }
+   i++;
+   while(a[i]!='\0')
+   {
+       if(isempty(*s)){return 0;}
+      char x;
+       pop(s,&x);
+       if(a[i]!=x){return 0;}
+       i++;
+   }
+   if(isempty(*s)){return 1;}
+   return 0;
 }
 
 int main()
